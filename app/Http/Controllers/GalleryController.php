@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Traits\Instagram;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 class GalleryController extends Controller
@@ -18,12 +19,32 @@ class GalleryController extends Controller
      */
     public function index()
     {
-        $tag = "test";
-        $access_token = "3307217163.955a82a.2c34b9f5809c44568e54933e2919e8a7"; // should be env variable
-        $media_array = Instagram::getMediaArray($tag, $access_token);
+        $media_data = Instagram::getMediaData();
         $rejected_media_array = $this->getRejectedMediaArray();
-        $filtered_media_array = $this->getFilteredMediaArray($media_array, $rejected_media_array);
-        return view('gallery', ["media_array" => $filtered_media_array]);
+        $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
+        return view('gallery', ["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function more(Request $request)
+    {
+        $url = $this->getUrl($request);
+        $media_data = Instagram::getMoreMediaData($url);
+        $rejected_media_array = $this->getRejectedMediaArray();
+        $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
+        return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+    }
+
+    public function getUrl($request) 
+    {
+        return $request->base_url . 
+            "?access_token=" . $request->access_token . 
+            "&max_tag_id=" . $request->max_tag_id; 
     }
 
     private function getRejectedMediaArray()
@@ -43,10 +64,6 @@ class GalleryController extends Controller
                 if ($media->url == $rejected_media->url) {
                     $found = true;
                     break;
-                }
-                // var_dump($media->url);
-                if ($media->url == "https://scontent.cdninstagram.com/vp/ac0311e54293353d2b63198692c1f40e/5B21FD6E/t50.2886-16/34513053_962747810572461_2408429660214131513_n.mp4") {
-                    // var_dump("test");
                 }
             }
             if (!$found) {

@@ -27,9 +27,7 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $tag = "test";
-        $access_token = "3307217163.955a82a.2c34b9f5809c44568e54933e2919e8a7"; // should be env variable
-        $temp_media_array = Instagram::getMediaArray($tag, $access_token);
+        $temp_media_array = Instagram::getMediaData()->media_array;
         $this->updateDatabase($temp_media_array);
         $media_array = $this->getMediaArray();
         return view('admin', ["media_array" => $media_array]);
@@ -95,12 +93,11 @@ class AdminController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return
      */
     public function update(Request $request)
     {
-        $actionType = $request->actionType;
+        $actionType = $request->action_type;
         $urls = json_decode($request->urls);
         DB::table('gallery_items')
             ->whereIn('url', $urls)

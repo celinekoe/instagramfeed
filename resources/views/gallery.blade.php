@@ -2,6 +2,7 @@
 
 @section('content')
 <link href="{{ asset('css/gallery.css') }}" rel="stylesheet">
+<script src="{{ asset('js/gallery.js') }}" defer></script>
 <div class="container">
     <h1>Gallery</h1>
     <div class="gallery">
@@ -18,6 +19,9 @@
                 </div>
             @endif
         @endforeach
+    </div>
+    <div class="loading" data-next-url="{{ $next_url }}">
+        <p>Loading...</p>
     </div>
 </div>
 @endsection

@@ -23,3 +23,4 @@ Route::get('/admin', 'AdminController@index')->name('admin');
 Route::post('/admin', 'AdminController@update');
 
 Route::get('/gallery', 'GalleryController@index')->name('gallery');
+Route::get('/gallery/more', 'GalleryController@more');

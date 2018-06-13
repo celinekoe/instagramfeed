@@ -60,26 +60,26 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 46);
+/******/ 	return __webpack_require__(__webpack_require__.s = 39);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 46:
+/***/ 39:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(47);
+module.exports = __webpack_require__(40);
 
 
 /***/ }),
 
-/***/ 47:
+/***/ 40:
 /***/ (function(module, exports) {
 
 var alert = document.querySelector(".alert");
 
 var alertCloseButton = document.querySelector(".alert-close-button");
-alertCloseButton.addEventListener("click", closeAlert, true);
+alertCloseButton.addEventListener("click", closeAlert);
 
 function closeAlert() {
     alert.classList.remove("show");
@@ -91,7 +91,7 @@ for (i = 0; i < modalConfirmButtons.length; i++) {
 }
 
 function addConfirmOnClick(confirmButton) {
-    confirmButton.addEventListener("click", confirm, true);
+    confirmButton.addEventListener("click", confirm);
 }
 
 function confirm($event) {
@@ -99,7 +99,7 @@ function confirm($event) {
     var _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
     var confirmButton = $event.currentTarget;
     var params = getConfirmParams(confirmButton);
-    xhr.open("POST", "/admin", true);
+    xhr.open("POST", "/admin");
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.setRequestHeader("X-CSRF-TOKEN", _token);
     xhr.onreadystatechange = function () {
@@ -130,7 +130,7 @@ function deselect() {
 function getConfirmParams(confirmButton) {
     var actionType = confirmButton.getAttribute("data-action");
     var urls = getUrls();
-    return "actionType=" + actionType + "&urls=" + JSON.stringify(urls);
+    return "action_type=" + actionType + "&urls=" + JSON.stringify(urls);
 }
 
 function getUrls() {
@@ -150,7 +150,7 @@ for (i = 0; i < modalCloseButtons.length; i++) {
 }
 
 function addDeselectOnClick(button) {
-    button.addEventListener("click", deselect, true);
+    button.addEventListener("click", deselect);
 }
 
 var galleryItems = document.querySelectorAll(".gallery-item");
@@ -160,7 +160,7 @@ for (i = 0; i < galleryItems.length; i++) {
 }
 
 function addSelectOnClick(galleryItem) {
-    galleryItem.addEventListener("click", select, true);
+    galleryItem.addEventListener("click", select);
 }
 
 function select($event) {

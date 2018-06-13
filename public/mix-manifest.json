@@ -3,5 +3,6 @@
     "/css/app.css": "/css/app.css",
     "/css/admin.css": "/css/admin.css",
     "/css/gallery.css": "/css/gallery.css",
+    "/js/gallery.js": "/js/gallery.js",
     "/js/admin.js": "/js/admin.js"
 }

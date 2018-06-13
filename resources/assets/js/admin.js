@@ -1,7 +1,7 @@
 let alert = document.querySelector(".alert");
 
 let alertCloseButton = document.querySelector(".alert-close-button");
-alertCloseButton.addEventListener("click", closeAlert, true);
+alertCloseButton.addEventListener("click", closeAlert);
 
 function closeAlert() {
     alert.classList.remove("show");
@@ -13,7 +13,7 @@ for(i = 0; i < modalConfirmButtons.length; i++) {
 }
 
 function addConfirmOnClick(confirmButton) {
-    confirmButton.addEventListener("click", confirm, true);
+    confirmButton.addEventListener("click", confirm);
 }
 
 function confirm($event) {
@@ -21,7 +21,7 @@ function confirm($event) {
     let _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
     let confirmButton = $event.currentTarget;
     let params = getConfirmParams(confirmButton);
-    xhr.open("POST", "/admin", true);
+    xhr.open("POST", "/admin");
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.setRequestHeader("X-CSRF-TOKEN", _token);
     xhr.onreadystatechange = function() {
@@ -52,7 +52,7 @@ function deselect() {
 function getConfirmParams(confirmButton) {
     let actionType = confirmButton.getAttribute("data-action");
     let urls = getUrls();
-    return "actionType=" + actionType + "&urls=" + JSON.stringify(urls);
+    return "action_type=" + actionType + "&urls=" + JSON.stringify(urls);
 }
 
 function getUrls() {
@@ -72,7 +72,7 @@ for(i = 0; i < modalCloseButtons.length; i++) {
 }
 
 function addDeselectOnClick(button) {
-    button.addEventListener("click", deselect, true);
+    button.addEventListener("click", deselect);
 }
 
 let galleryItems = document.querySelectorAll(".gallery-item");
@@ -82,7 +82,7 @@ for(i = 0; i < galleryItems.length; i++) {
 }
 
 function addSelectOnClick(galleryItem) {
-    galleryItem.addEventListener("click", select, true);
+    galleryItem.addEventListener("click", select);
 }
 
 function select($event) {
