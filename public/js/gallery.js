@@ -76,19 +76,34 @@ module.exports = __webpack_require__(42);
 /***/ 42:
 /***/ (function(module, exports) {
 
+/*
+ * Scroll to load
+ */
+
 document.addEventListener('scroll', onScroll);
+
 var polling = false;
-var xhr = new XMLHttpRequest();
 var _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 
 function onScroll() {
-    distToBottom = getDistToBottom();
+    var distToBottom = getDistToBottom();
     if (!polling && distToBottom < 400) {
-        polling = true;
-        var params = getParams();
-        xhr.open("GET", "/gallery/more" + params);
-        xhr.setRequestHeader("X-CSRF-TOKEN", _token);
-        xhr.send();
+        var nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
+        if (nextUrl !== "") {
+            polling = true;
+            var params = getParams();
+            get("/gallery/more", params).then(function (response) {
+                polling = false;
+                updateNextUrl(response.next_url);
+                addGalleryItems(response.media_array);
+            }).catch(function () {
+                polling = false;
+                console.error("err");
+            });
+        } else {
+            var loadingText = document.querySelector(".loading").querySelector("p");
+            loadingText.innerHTML = "No more content to load";
+        }
     }
 }
 
@@ -100,25 +115,13 @@ function getDistToBottom() {
 }
 
 function getParams() {
-    var loading = document.querySelector(".loading");
-    var nextUrl = loading.getAttribute("data-next-url");
+    var nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
     var baseUrl = nextUrl.split("?")[0];
     var stringParams = nextUrl.split("?").pop().split("&");
     var accessToken = stringParams[0].split("=").pop();
     var maxTagId = stringParams[1].split("=").pop();
     return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&max_tag_id=" + maxTagId;
 }
-
-xhr.onreadystatechange = function () {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-        var response = JSON.parse(xhr.responseText);
-        updateNextUrl(response.next_url);
-        addGalleryItems(response.media_array);
-        polling = false;
-    } else {
-        polling = false;
-    }
-};
 
 function updateNextUrl(nextUrl) {
     var loading = document.querySelector(".loading");
@@ -137,28 +140,70 @@ function addGalleryItem(media) {
     var galleryItem = document.createElement("div");
     galleryItem.classList.add("gallery-item");
     gallery.appendChild(galleryItem);
+    var link = addLink(galleryItem, media);
     if (media.type === "video") {
-        addVideo(galleryItem, media);
+        addVideo(link, media);
     } else if (media.type === "image") {
-        addImage(galleryItem, media);
+        addImage(link, media);
     }
 }
 
-function addVideo(galleryItem, media) {
+function addLink(galleryItem, media) {
+    var link = document.createElement("a");
+    link.setAttribute("href", media.link);
+    link.setAttribute("target", "_blank");
+    galleryItem.appendChild(link);
+    return link;
+}
+
+function addVideo(link, media) {
+    var videoContainer = document.createElement("div");
+    link.appendChild(videoContainer);
+
     var video = document.createElement("video");
-    video.setAttribute("controls", true);
-    galleryItem.appendChild(video);
+    videoContainer.classList.add("video-container");
+    videoContainer.appendChild(video);
 
     var source = document.createElement("source");
     source.setAttribute("src", media.url);
     source.setAttribute("type", "video/mp4");
     video.appendChild(source);
+
+    var videoOverlay = document.createElement("div");
+    videoOverlay.classList.add("video-overlay");
+    videoContainer.appendChild(videoOverlay);
+
+    var playIcon = document.createElement("span");
+    playIcon.classList.add("oi");
+    playIcon.setAttribute("data-glyph", "media-play");
+    videoOverlay.appendChild(playIcon);
 }
 
-function addImage(galleryItem, media) {
+function addImage(link, media) {
     var image = document.createElement("img");
     image.setAttribute("src", media.url);
-    galleryItem.appendChild(image);
+    link.appendChild(image);
+}
+
+/*
+ * GET
+ */
+
+function get(url, params) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url + params);
+        xhr.setRequestHeader("X-CSRF-TOKEN", _token);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                resolve(response);
+            } else {
+                reject();
+            }
+        };
+        xhr.send();
+    });
 }
 
 /***/ })

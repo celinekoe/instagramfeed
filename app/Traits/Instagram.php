@@ -20,6 +20,7 @@ trait Instagram {
         $media_data = new \stdClass;
         $media_data->next_url = Instagram::getNextUrl($body->pagination);
         $media_data->media_array = Instagram::getMediaArray($body->data);
+        $media_data->tag = $tag;
         return $media_data;
     }
 
@@ -59,11 +60,12 @@ trait Instagram {
     {
         $media_array = [];
         foreach ($data as $media) {
+            $link = $media->link;
             if (isset($media->carousel_media)) {
-                $carousel_media_array = Instagram::getCarouselMediaArray($media->carousel_media);
+                $carousel_media_array = Instagram::getCarouselMediaArray($media->carousel_media, $link);
                 $media_array = array_merge($media_array, $carousel_media_array);
             } else {
-                $media_object = Instagram::getMediaObject($media);
+                $media_object = Instagram::getMediaObject($media, $link);
                 array_push($media_array, $media_object);
             }
         }
@@ -75,31 +77,28 @@ trait Instagram {
      *
      * @return array
      */
-    private static function getCarouselMediaArray($carousel_media_array)
+    private static function getCarouselMediaArray($carousel_media_array, $link)
     {
         $new_carousel_media_array = [];
         foreach ($carousel_media_array as $carousel_media) {
-            $media_object = Instagram::getMediaObject($carousel_media);
+            $media_object = Instagram::getMediaObject($carousel_media, $link);
             array_push($new_carousel_media_array, $media_object);
         }
         $new_carousel_media_array = array_reverse($new_carousel_media_array);
         return $new_carousel_media_array;
     }
 
-    /**
-     * Return media.
-     *
-     * @return object
-     */
-    private static function getMediaObject($media)
+    private static function getMediaObject($media, $link)
     {
         $media_object = new \stdClass;
         if (isset($media->videos)) {
             $media_object->url = $media->videos->standard_resolution->url;
             $media_object->type = "video";
+            $media_object->link = $link;
         } else if (isset($media->images)) {
             $media_object->url = $media->images->standard_resolution->url;
             $media_object->type = "image";
+            $media_object->link = $link;
         }
         return $media_object;
     }

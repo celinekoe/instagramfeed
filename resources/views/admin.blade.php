@@ -4,7 +4,7 @@
 <link href="{{ asset('css/admin.css') }}" rel="stylesheet">
 <script src="{{ asset('js/admin.js') }}" defer></script>
 <div class="container">
-    <h1>Admin</h1>
+    <h1>Admin for #{{ $tag }}</h1>
     <div class="alert alert-success" role="alert">
         Gallery successfully updated!
         <button type="button" class="close alert-close-button" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -27,6 +27,13 @@
                 <div class="gallery-item-reject-overlay"></div>
             </div>
         @endforeach
+    </div>
+    <div class="loading" data-next-url="{{ $next_url }}">
+        @if ($next_url)
+            <p>Loading...</p>
+        @else
+            <p>No more content to load</p>
+        @endif
     </div>
     <div class="modal fade" id="acceptModal" tabindex="-1" role="dialog" aria-labelledby="acceptModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">

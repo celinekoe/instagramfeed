@@ -61,7 +61,7 @@ class GalleryController extends Controller
         foreach ($media_array as $media) {
             $found = false;
             foreach ($rejected_media_array as $rejected_media) {
-                if ($media->url == $rejected_media->url) {
+                if ($media->url === $rejected_media->url) {
                     $found = true;
                     break;
                 }

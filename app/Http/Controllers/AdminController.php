@@ -27,10 +27,50 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $temp_media_array = Instagram::getMediaData()->media_array;
-        $this->updateDatabase($temp_media_array);
-        $media_array = $this->getMediaArray();
-        return view('admin', ["media_array" => $media_array]);
+        $media_data = Instagram::getMediaData();
+        $this->updateDatabase($media_data->media_array);
+        $updated_media_array = $this->getUpdatedMediaArray($media_data->media_array);
+        return view('admin', ["tag" => $media_data->tag, "media_array" => $updated_media_array, "next_url" => $media_data->next_url]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function more(Request $request)
+    {
+        $url = $this->getUrl($request);
+        $media_data = Instagram::getMoreMediaData($url);
+        $this->updateDatabase($media_data->media_array);
+        $updated_media_array = $this->getUpdatedMediaArray($media_data->media_array);
+        return response()->json(["media_array" => $updated_media_array, "next_url" => $media_data->next_url]);
+    }
+
+    public function getUrl($request) 
+    {
+        return $request->base_url . 
+            "?access_token=" . $request->access_token . 
+            "&max_tag_id=" . $request->max_tag_id; 
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return
+     */
+    public function update(Request $request)
+    {
+        $action_type = $request->action_type;
+        $urls = json_decode($request->urls);
+        DB::table('gallery_items')
+            ->whereIn('url', $urls)
+            ->update([
+                'status' => $action_type, 
+                'updated_at' => date("Y-m-d H:i:s"),
+            ]);
     }
 
     private function updateDatabase($media_array)
@@ -43,14 +83,40 @@ class AdminController extends Controller
 
     private function getInsertMediaArray($media_array)
     {
-        foreach ($media_array as $media)
+        $filtered_media_array = $this->getFilteredMediaArray($media_array);   
+        $insert_media_array = [];     
+        foreach ($filtered_media_array as $filtered_media)
         {
-            $insert_media_array[] = $this->getInsertMedia($media);
+            $insert_media_array[] = $this->getInsertMedia($filtered_media);
         }
-        $insert_media_array = array_reverse($insert_media_array);
-        $insert_media_index = $this->getInsertMediaIndex($insert_media_array);
-        $insert_media_array = array_slice($insert_media_array, $insert_media_index);
         return $insert_media_array;
+    }
+
+    private function getFilteredMediaArray($media_array) {
+        $urls = array_column($media_array, "url");
+        $database_media_array = DB::table("gallery_items")
+            ->whereIn("url", $urls)
+            ->get()
+            ->toArray();
+        return $this->filterMediaArray($media_array, $database_media_array);
+    }
+
+    private function filterMediaArray($media_array, $filter_media_array)
+    {
+        $filtered_media_array = [];
+        foreach ($media_array as $media) {
+            $found = false;
+            foreach ($filter_media_array as $filter_media) {
+                if ($media->url === $filter_media->url) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                array_push($filtered_media_array, $media);
+            }
+        }
+        return $filtered_media_array;
     }
 
     private function getInsertMedia($media)
@@ -64,46 +130,32 @@ class AdminController extends Controller
         ];
     }
 
-    private function getInsertMediaIndex($insert_media_array)
+    private function getUpdatedMediaArray($media_array)
     {
-        $insert_media_index = 0;
-        $latest_media = $this->getLatestMedia();
-        if (isset($latest_media)) {
-            $insert_media_index = array_search($latest_media->url, array_column($insert_media_array, "url")) + 1;
+        $updated_media_array = [];
+        $urls = array_column($media_array, "url");
+        $database_media_array = DB::table("gallery_items")
+            ->whereIn("url", $urls)
+            ->get()
+            ->toArray();
+        foreach ($media_array as $media) {
+            foreach ($database_media_array as $database_media) {
+                if ($media->url === $database_media->url) {
+                    $updated_media_object = $this->getUpdatedMediaObject($media, $database_media);
+                    array_push($updated_media_array, $updated_media_object);
+                }
+            }
         }
-        return $insert_media_index;
+        return $updated_media_array;
     }
 
-    private function getLatestMedia()
+    private static function getUpdatedMediaObject($media, $database_media)
     {
-        $latest_media = DB::table('gallery_items')
-            ->latest('id')
-            ->first();
-        return $latest_media;
+        $updated_media_object = new \stdClass;
+        $updated_media_object->url = $media->url;
+        $updated_media_object->type = $media->type;
+        $updated_media_object->status = $database_media->status;
+        return $updated_media_object;
     }
 
-    private function getMediaArray()
-    {
-        $media_array = DB::table('gallery_items')->get()->toArray();
-        $media_array = array_reverse($media_array);
-        return $media_array;
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return
-     */
-    public function update(Request $request)
-    {
-        $actionType = $request->action_type;
-        $urls = json_decode($request->urls);
-        DB::table('gallery_items')
-            ->whereIn('url', $urls)
-            ->update([
-                'status' => $actionType, 
-                'updated_at' => date("Y-m-d H:i:s"),
-            ]);
-    }
 }

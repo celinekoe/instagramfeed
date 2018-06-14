@@ -4,12 +4,26 @@
     grid-template-columns: repeat(4, 1fr);
 }
 
-.gallery-item > img {
+.gallery-item img {
     width: 100%;
 }
 
-.gallery-item > video {
+.gallery-item video {
     width: 100%;
+}
+
+.video-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-item .video-overlay {
+    position: absolute;
+    color: #ffffff;
+    font-size: 2rem;
+    z-index: 20;
 }
 
 @media all and (max-width: 1690px) { 

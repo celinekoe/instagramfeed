@@ -7,21 +7,30 @@
     <h1>Gallery</h1>
     <div class="gallery">
         @foreach ($media_array as $media)
-            @if ($media->type === "video")
-                <div class="gallery-item">
-                    <video controls>
-                        <source src="{{ $media->url }}" type="video/mp4">
-                    </video>    
-                </div>
-            @elseif ($media->type === "image")
-                <div class="gallery-item">
-                    <img src="{{ $media->url }}"/>    
-                </div>
-            @endif
+            <div class="gallery-item">
+                <a href="{{ $media->link }}" target="_blank">
+                    @if ($media->type === "video")
+                        <div class="video-container">
+                            <video>
+                                <source src="{{ $media->url }}" type="video/mp4">
+                            </video>
+                            <div class="video-overlay">
+                                <span class="oi" data-glyph="media-play"></span>
+                            </div>
+                        </div>
+                    @elseif ($media->type === "image")
+                        <img src="{{ $media->url }}"/>    
+                    @endif
+                </a>
+            </div> 
         @endforeach
     </div>
     <div class="loading" data-next-url="{{ $next_url }}">
-        <p>Loading...</p>
+        @if ($next_url)
+            <p>Loading...</p>
+        @else
+            <p>No more content to load</p>
+        @endif
     </div>
 </div>
 @endsection

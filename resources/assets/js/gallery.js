@@ -1,16 +1,33 @@
+/*
+ * Scroll to load
+ */
+
 document.addEventListener('scroll', onScroll);
+
 let polling = false;
-let xhr = new XMLHttpRequest();
 let _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 
 function onScroll() {
-    distToBottom = getDistToBottom();
+    let distToBottom = getDistToBottom();
     if (!polling && distToBottom < 400) {
-        polling = true;
-        let params = getParams();
-        xhr.open("GET", "/gallery/more" + params);
-        xhr.setRequestHeader("X-CSRF-TOKEN", _token);
-        xhr.send();
+        let nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
+        if (nextUrl !== "") {
+            polling = true;
+            let params = getParams();
+            get("/gallery/more", params)
+            .then(response => {
+                polling = false;
+                updateNextUrl(response.next_url);
+                addGalleryItems(response.media_array);
+            })
+            .catch(() => {
+                polling = false;
+                console.error("err");
+            });  
+        } else {
+            let loadingText = document.querySelector(".loading").querySelector("p");
+            loadingText.innerHTML = "No more content to load";
+        }
     }
 }
 
@@ -22,24 +39,12 @@ function getDistToBottom () {
 }
 
 function getParams() {
-    let loading = document.querySelector(".loading");
-    let nextUrl = loading.getAttribute("data-next-url");
+    let nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
     let baseUrl = nextUrl.split("?")[0];
     let stringParams = nextUrl.split("?").pop().split("&");
     let accessToken = stringParams[0].split("=").pop();
     let maxTagId = stringParams[1].split("=").pop(); 
     return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&max_tag_id=" + maxTagId;
-}
-
-xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-        let response = JSON.parse(xhr.responseText)
-        updateNextUrl(response.next_url);
-        addGalleryItems(response.media_array);
-        polling = false;
-    } else {
-        polling = false;
-    }
 }
 
 function updateNextUrl(nextUrl) {
@@ -59,27 +64,68 @@ function addGalleryItem(media) {
     let galleryItem = document.createElement("div");
     galleryItem.classList.add("gallery-item");
     gallery.appendChild(galleryItem);
+    let link = addLink(galleryItem, media);
     if (media.type === "video") {
-        addVideo(galleryItem, media);
+        addVideo(link, media);
     } else if (media.type === "image") {
-        addImage(galleryItem, media);
+        addImage(link, media);
     }
 }
 
-function addVideo(galleryItem, media) {
+function addLink(galleryItem, media) {
+    let link = document.createElement("a");
+    link.setAttribute("href", media.link);
+    link.setAttribute("target", "_blank");
+    galleryItem.appendChild(link);
+    return link;
+}
+
+function addVideo(link, media) {
+    let videoContainer = document.createElement("div");
+    link.appendChild(videoContainer);
+
     let video = document.createElement("video");
-    video.setAttribute("controls", true);
-    galleryItem.appendChild(video);
+    videoContainer.classList.add("video-container");
+    videoContainer.appendChild(video);
 
     let source = document.createElement("source");
     source.setAttribute("src", media.url);
     source.setAttribute("type", "video/mp4");
     video.appendChild(source);
+
+    let videoOverlay = document.createElement("div");
+    videoOverlay.classList.add("video-overlay");
+    videoContainer.appendChild(videoOverlay);
+
+    let playIcon = document.createElement("span");
+    playIcon.classList.add("oi");
+    playIcon.setAttribute("data-glyph", "media-play");
+    videoOverlay.appendChild(playIcon);
 }
 
-function addImage(galleryItem, media) {
+function addImage(link, media) {
     let image = document.createElement("img");
     image.setAttribute("src", media.url);
-    galleryItem.appendChild(image);
+    link.appendChild(image);
 }
+
+/*
+ * GET
+ */
   
+function get(url, params) {
+    return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", url + params);
+        xhr.setRequestHeader("X-CSRF-TOKEN", _token);
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                let response = JSON.parse(xhr.responseText)
+                resolve(response);
+            } else {
+                reject();
+            }
+        }
+        xhr.send();
+    });
+}
