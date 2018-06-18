@@ -67,3 +67,7 @@ Route::post('/admin', 'AdminController@update');
 
 Route::get('/gallery', 'GalleryController@index')->name('gallery');
 Route::get('/gallery/more', 'GalleryController@more');
+
+Route::get('/hello', function () {
+    return view('hello');
+});
