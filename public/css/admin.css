@@ -25,6 +25,10 @@
   grid-template-columns: repeat(4, 1fr);
 }
 
+.gallery-item {
+  position: relative;
+}
+
 .gallery-item > img {
   width: 100%;
 }
