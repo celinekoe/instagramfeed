@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\EmailsExport;
 use App\Models\Email;
 use Excel;
 use Illuminate\Http\Request;
@@ -13,7 +12,28 @@ class JoinMailingListController extends Controller
 {
     public function index(Request $request)
     {
-        return Excel::download(new EmailsExport, 'emails.xlsx');
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=file.csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+    
+        $emails = Email::all();
+        $columns = array('Email', 'Created At', 'Updated At');
+    
+        $callback = function() use ($emails, $columns)
+        {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+    
+            foreach($emails as $email) {
+                fputcsv($file, array($email->email, $email->created_at, $email->updated_at));
+            }
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
     }
 
     public function update(Request $request)
