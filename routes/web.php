@@ -68,4 +68,5 @@ Route::post('/admin', 'AdminController@update');
 Route::get('/gallery', 'GalleryController@index')->name('gallery');
 Route::get('/gallery/more', 'GalleryController@more');
 
+Route::get('/joinmailinglist', 'JoinMailingListController@index');
 Route::post('/joinmailinglist', 'JoinMailingListController@update');
