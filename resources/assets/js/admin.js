@@ -1,3 +1,5 @@
+let appUrl = "/server/public";
+
 /*
  * Alert
  */
@@ -29,7 +31,7 @@ let _token = document.querySelector("meta[name='csrf-token']").getAttribute("con
 function confirm($event) {
     let confirmButton = $event.currentTarget;
     let params = getConfirmParams(confirmButton);
-    post("/admin", params)
+    post(appUrl + "/admin", params)
     .then(() => {
         updateDataStatus(confirmButton);
         deselect();
@@ -114,7 +116,7 @@ function onScroll() {
         if (nextUrl !== "") {
             polling = true;
             let params = getParams();
-            get("/admin/more", params)
+            get(appUrl + "/admin/more", params)
             .then(response => {
                 polling = false;
                 updateNextUrl(response.next_url);

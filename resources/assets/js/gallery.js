@@ -1,3 +1,5 @@
+let appUrl = "/server/public";
+
 /*
  * Scroll to load
  */
@@ -14,7 +16,7 @@ function onScroll() {
         if (nextUrl !== "") {
             polling = true;
             let params = getParams();
-            get("/gallery/more", params)
+            get(appUrl + "/gallery/more", params)
             .then(response => {
                 polling = false;
                 updateNextUrl(response.next_url);
