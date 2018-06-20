@@ -51,7 +51,8 @@ class AdminController extends Controller
     public function getUrl($request) 
     {
         return $request->base_url . 
-            "?access_token=" . $request->access_token . 
+            "?access_token=" . $request->access_token .
+            "&count=" . $request->count .
             "&max_tag_id=" . $request->max_tag_id; 
     }
 

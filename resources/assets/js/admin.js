@@ -1,4 +1,5 @@
-let appUrl = "/server/public";
+let appUrl = "http://192.168.1.43/";
+// let appUrl = "/server/public";
 
 /*
  * Alert
@@ -145,8 +146,9 @@ function getParams() {
     let baseUrl = nextUrl.split("?")[0];
     let stringParams = nextUrl.split("?").pop().split("&");
     let accessToken = stringParams[0].split("=").pop();
-    let maxTagId = stringParams[1].split("=").pop(); 
-    return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&max_tag_id=" + maxTagId;
+    let count = stringParams[1].split("=").pop(); 
+    let maxTagId = stringParams[2].split("=").pop(); 
+    return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&count=" + count + "&max_tag_id=" + maxTagId;
 }
 
 function updateNextUrl(nextUrl) {

@@ -17,12 +17,20 @@ class GalleryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // public function index()
+    // {
+    //     $media_data = Instagram::getMediaData();
+    //     $rejected_media_array = $this->getRejectedMediaArray();
+    //     $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
+    //     return view('gallery', ["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+    // }
+
     public function index()
     {
         $media_data = Instagram::getMediaData();
         $rejected_media_array = $this->getRejectedMediaArray();
         $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
-        return view('gallery', ["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+        return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
     }
 
     /**
@@ -43,7 +51,8 @@ class GalleryController extends Controller
     public function getUrl($request) 
     {
         return $request->base_url . 
-            "?access_token=" . $request->access_token . 
+            "?access_token=" . $request->access_token .
+            "&count=" . $request->count .
             "&max_tag_id=" . $request->max_tag_id; 
     }
 

@@ -76,6 +76,9 @@ module.exports = __webpack_require__(40);
 /***/ 40:
 /***/ (function(module, exports) {
 
+var appUrl = "http://192.168.1.43/";
+// let appUrl = "/server/public";
+
 /*
  * Alert
  */
@@ -107,7 +110,7 @@ var _token = document.querySelector("meta[name='csrf-token']").getAttribute("con
 function confirm($event) {
     var confirmButton = $event.currentTarget;
     var params = getConfirmParams(confirmButton);
-    post("/admin", params).then(function () {
+    post(appUrl + "/admin", params).then(function () {
         updateDataStatus(confirmButton);
         deselect();
         alert.classList.add("show");
@@ -190,7 +193,7 @@ function onScroll() {
         if (nextUrl !== "") {
             polling = true;
             var params = getParams();
-            get("/admin/more", params).then(function (response) {
+            get(appUrl + "/admin/more", params).then(function (response) {
                 polling = false;
                 updateNextUrl(response.next_url);
                 addGalleryItems(response.media_array);
@@ -217,8 +220,9 @@ function getParams() {
     var baseUrl = nextUrl.split("?")[0];
     var stringParams = nextUrl.split("?").pop().split("&");
     var accessToken = stringParams[0].split("=").pop();
-    var maxTagId = stringParams[1].split("=").pop();
-    return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&max_tag_id=" + maxTagId;
+    var count = stringParams[1].split("=").pop();
+    var maxTagId = stringParams[2].split("=").pop();
+    return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&count=" + count + "&max_tag_id=" + maxTagId;
 }
 
 function updateNextUrl(nextUrl) {

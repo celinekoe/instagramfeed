@@ -14,8 +14,9 @@ trait Instagram {
     public static function getMediaData()
     {
         $tag = "test";
+        $count = 8;
         $access_token = "3307217163.955a82a.2c34b9f5809c44568e54933e2919e8a7"; // should be env variable
-        $url = "https://api.instagram.com/v1/tags/" . $tag . "/media/recent?access_token=" . $access_token;
+        $url = "https://api.instagram.com/v1/tags/" . $tag . "/media/recent?access_token=" . $access_token . "&count=" . $count;
         $body = Instagram::getBody($url);
         $media_data = new \stdClass;
         $media_data->next_url = Instagram::getNextUrl($body->pagination);
@@ -31,6 +32,7 @@ trait Instagram {
      */
     public static function getMoreMediaData($next_url)
     {
+        $count = 8;
         $body = Instagram::getBody($next_url);
         $media_data = new \stdClass;
         $media_data->next_url = Instagram::getNextUrl($body->pagination);
