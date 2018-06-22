@@ -21,24 +21,14 @@ class GalleryController extends Controller
     {
         $page_size = 20;
         $media_array = $this->getMediaArrayFromDatabase($page_size);
-        return view('gallery', ["media_array" => $media_array, "next_url" => ""]);
+        return view('gallery', ["media_array" => $media_array]);
     }
 
     // public function index()
     // {
-    //     $media_data = Instagram::getMediaData();
-    //     $rejected_media_array = $this->getRejectedMediaArray();
-    //     $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
-    //     return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
-    // }
-
-    // public function more(Request $request)
-    // {
-    //     $url = $this->getUrl($request);
-    //     $media_data = Instagram::getMoreMediaData($url);
-    //     $rejected_media_array = $this->getRejectedMediaArray();
-    //     $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
-    //     return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+    //     $page_size = 20;
+    //     $media_array = $this->getMediaArrayFromDatabase($page_size);
+    //     return response()->json(["media_array" => $media_array]);
     // }
 
     public function more(Request $request)
