@@ -11,9 +11,12 @@
     margin-bottom: 0.5rem;
 }
 
-.action-item:first-child {
-    margin-left: auto;
-    margin-right: 0.5rem;
+#refresh-button {
+    margin-right: auto;
+}
+
+.action-item + .action-item {
+    margin-left: 0.5rem;
 }
 
 .gallery {

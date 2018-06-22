@@ -10,6 +10,7 @@
         <button type="button" class="close alert-close-button" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     </div>
     <div class="action">
+        <button type="button" id="refresh-button" class="btn btn-primary action-item">Refresh</button>
         <button type="button" id="accept-button" class="btn btn-success action-item" data-toggle="modal" data-target="#acceptModal">Accept</button>
         <button type="button" id="reject-button" class="btn btn-danger action-item" data-toggle="modal" data-target="#rejectModal">Reject</button>
     </div>

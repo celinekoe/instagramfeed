@@ -20,25 +20,14 @@ class AdminController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $media_data = Instagram::getMediaData();
-        $this->updateDatabase($media_data->media_array);
-        $updated_media_array = $this->getUpdatedMediaArray($media_data->media_array);
-        return view('admin', ["tag" => $media_data->tag, "media_array" => $updated_media_array, "next_url" => $media_data->next_url]);
+        $tag = "hhn8";
+        $count = 20;
+        $media_array = $this->getMediaArrayFromDatabase($count);
+        return view('admin', ["tag" => $tag, "media_array" => $media_array, "next_url" => ""]);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function more(Request $request)
     {
         $url = $this->getUrl($request);
@@ -46,6 +35,12 @@ class AdminController extends Controller
         $this->updateDatabase($media_data->media_array);
         $updated_media_array = $this->getUpdatedMediaArray($media_data->media_array);
         return response()->json(["media_array" => $updated_media_array, "next_url" => $media_data->next_url]);
+    }
+
+    public function refresh(Request $request)
+    {
+        $media_data = Instagram::getAllMediaData();
+        $this->updateDatabase($media_data->media_array);
     }
 
     public function getUrl($request) 
@@ -56,12 +51,6 @@ class AdminController extends Controller
             "&max_tag_id=" . $request->max_tag_id; 
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return
-     */
     public function update(Request $request)
     {
         $action_type = $request->action_type;
@@ -84,7 +73,7 @@ class AdminController extends Controller
 
     private function getInsertMediaArray($media_array)
     {
-        $filtered_media_array = $this->getFilteredMediaArray($media_array);   
+        $filtered_media_array = $this->getFilteredMediaArray($media_array);  
         $insert_media_array = [];     
         foreach ($filtered_media_array as $filtered_media)
         {
@@ -126,6 +115,7 @@ class AdminController extends Controller
             'url' => $media->url,
             'type' => $media->type,
             'status' => "pending",
+            'uploaded_time' => $media->uploaded_time,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),
         ];
@@ -157,6 +147,16 @@ class AdminController extends Controller
         $updated_media_object->type = $media->type;
         $updated_media_object->status = $database_media->status;
         return $updated_media_object;
+    }
+
+    private static function getMediaArrayFromDatabase($count)
+    {
+        $database_media_array = DB::table("gallery_items")
+            ->orderBy("created_at")
+            ->take($count)
+            ->get()
+            ->toArray();
+        return $database_media_array;
     }
 
 }

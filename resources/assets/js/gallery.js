@@ -1,4 +1,5 @@
-let appUrl = "http://192.168.1.43";
+let appUrl = "http://127.0.0.1:8000";
+// let appUrl = "http://192.168.1.43";
 // let appUrl = "/server/public";
 
 /*
