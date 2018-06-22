@@ -5,62 +5,35 @@ namespace App\Traits;
 use GuzzleHttp\Client;
 
 trait Instagram {
- 
-    /**
-     * Return media in an array.
-     *
-     * @return 
-     */
-    public static function getMediaData()
-    {
-        $tag = "hhn8";
-        $access_token = "3307217163.955a82a.2c34b9f5809c44568e54933e2919e8a7"; // should be env variable
-        $url = "https://api.instagram.com/v1/tags/" . $tag . "/media/recent?access_token=" . $access_token;
-        $body = Instagram::getBody($url);
-        $media_data = new \stdClass;
-        $media_data->next_url = Instagram::getNextUrl($body->pagination);
-        $media_data->media_array = Instagram::getMediaArray($body->data);
-        $media_data->tag = $tag;
-        return $media_data;
-    }
 
     /**
      * Return media in an array.
      *
      * @return 
      */
-    public static function getMoreMediaData($next_url)
+    public static function getAllMediaData($tag)
     {
-        $body = Instagram::getBody($next_url);
-        $media_data = new \stdClass;
-        $media_data->next_url = Instagram::getNextUrl($body->pagination);
-        $media_data->media_array = Instagram::getMediaArray($body->data);
-        return $media_data;
-    }
-
-    /**
-     * Return media in an array.
-     *
-     * @return 
-     */
-    public static function getAllMediaData()
-    {
-        $tag = "hhn8";
+        $max_count = 500;
         $access_token = "3307217163.955a82a.2c34b9f5809c44568e54933e2919e8a7"; // should be env variable
         $url = "https://api.instagram.com/v1/tags/" . $tag . "/media/recent?access_token=" . $access_token;
         $body = Instagram::getBody($url);
         $next_url = Instagram::getNextUrl($body->pagination);
         $media_array = Instagram::getMediaArray($body->data);
-        while ($next_url !== "") {
+        $count = count($media_array);
+        while ($next_url !== "" && $count < $max_count) {
             $temp_url = $next_url;
             $temp_body = Instagram::getBody($temp_url);
             $temp_next_url = Instagram::getNextUrl($temp_body->pagination);
             $temp_media_array = Instagram::getMediaArray($temp_body->data);
+            
             foreach ($temp_media_array as $temp_media) {
                 array_push($media_array, $temp_media);
             }
+            
             $next_url = $temp_next_url;
+            $count = count($media_array);
         }
+        
         $media_data = new \stdClass;
         $media_data->media_array = $media_array;   
         $media_data->tag = $tag;
