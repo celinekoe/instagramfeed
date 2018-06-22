@@ -29,12 +29,8 @@
             </div>
         @endforeach
     </div>
-    <div class="loading" data-next-url="{{ $next_url }}">
-        @if ($next_url)
-            <p>Loading...</p>
-        @else
-            <p>No more content to load</p>
-        @endif
+    <div class="loading">
+        <p>Loading...</p>
     </div>
     <div class="modal fade" id="acceptModal" tabindex="-1" role="dialog" aria-labelledby="acceptModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">

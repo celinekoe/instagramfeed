@@ -17,21 +17,21 @@ class GalleryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function index()
-    // {
-    //     $media_data = Instagram::getMediaData();
-    //     $rejected_media_array = $this->getRejectedMediaArray();
-    //     $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
-    //     return view('gallery', ["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
-    // }
-
     public function index()
     {
         $media_data = Instagram::getMediaData();
         $rejected_media_array = $this->getRejectedMediaArray();
         $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
-        return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+        return view('gallery', ["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
     }
+
+    // public function index()
+    // {
+    //     $media_data = Instagram::getMediaData();
+    //     $rejected_media_array = $this->getRejectedMediaArray();
+    //     $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
+    //     return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+    // }
 
     /**
      * Display a listing of the resource.

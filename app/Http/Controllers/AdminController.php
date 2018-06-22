@@ -23,18 +23,26 @@ class AdminController extends Controller
     public function index()
     {
         $tag = "hhn8";
-        $count = 20;
-        $media_array = $this->getMediaArrayFromDatabase($count);
-        return view('admin', ["tag" => $tag, "media_array" => $media_array, "next_url" => ""]);
+        $page_size = 20;
+        $media_array = $this->getMediaArrayFromDatabase($page_size);
+        return view('admin', ["tag" => $tag, "media_array" => $media_array]);
     }
+
+    // public function more(Request $request)
+    // {
+    //     $url = $this->getUrl($request);
+    //     $media_data = Instagram::getMoreMediaData($url);
+    //     $this->updateDatabase($media_data->media_array);
+    //     $updated_media_array = $this->getUpdatedMediaArray($media_data->media_array);
+    //     return response()->json(["media_array" => $updated_media_array, "next_url" => $media_data->next_url]);
+    // }
 
     public function more(Request $request)
     {
-        $url = $this->getUrl($request);
-        $media_data = Instagram::getMoreMediaData($url);
-        $this->updateDatabase($media_data->media_array);
-        $updated_media_array = $this->getUpdatedMediaArray($media_data->media_array);
-        return response()->json(["media_array" => $updated_media_array, "next_url" => $media_data->next_url]);
+        $page_count = $request->page_count;
+        $page_size = 20;
+        $media_array = $this->getMoreMediaArrayFromDatabase($page_count, $page_size);
+        return response()->json(["media_array" => $media_array, "next_url" => ""]);
     }
 
     public function refresh(Request $request)
@@ -150,11 +158,22 @@ class AdminController extends Controller
         return $updated_media_object;
     }
 
-    private static function getMediaArrayFromDatabase($count)
+    private static function getMediaArrayFromDatabase($page_size)
     {
         $database_media_array = DB::table("gallery_items")
             ->orderBy("created_at")
-            ->take($count)
+            ->take($page_size)
+            ->get()
+            ->toArray();
+        return $database_media_array;
+    }
+
+    private static function getMoreMediaArrayFromDatabase($page_count, $page_size)
+    {
+        $database_media_array = DB::table("gallery_items")
+            ->orderBy("created_at")
+            ->skip($page_count * $page_size)
+            ->take($page_size)
             ->get()
             ->toArray();
         return $database_media_array;

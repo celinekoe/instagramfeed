@@ -62,7 +62,7 @@ function confirm($event) {
     .then(() => {
         updateDataStatus(confirmButton);
         deselect();
-        alert.classList.add("show");
+        alertPopup.classList.add("show");
     })
     .catch(() => {
         console.error("err");
@@ -135,46 +135,55 @@ function select($event) {
 
 document.addEventListener('scroll', onScroll);
 let polling = false;
+let pageCount = 0;
+const pageSize = 20;
+let mediaCount = (pageCount + 1) * 20;
+
+let loadingText = document.querySelector(".loading").querySelector("p");
 
 function onScroll() {
     let distToBottom = getDistToBottom();
-    if (!polling && distToBottom < 400) {
-        let nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
-        if (nextUrl !== "") {
-            polling = true;
-            let params = getParams();
-            get(appUrl + "/admin/more", params)
-            .then(response => {
-                polling = false;
-                updateNextUrl(response.next_url);
-                addGalleryItems(response.media_array);
-            })
-            .catch(() => {
-                polling = false;
-                console.error("err");
-            });
-        } else {
-            let loadingText = document.querySelector(".loading").querySelector("p");
-            loadingText.innerHTML = "No more content to load";
-        }
+    if (distToBottom < 400 && !polling && hasNextPage()) {
+        polling = true;
+        let params = getParams();
+        get(appUrl + "/admin/more", params)
+        .then(response => {
+            polling = false;
+            pageCount++;
+            mediaCount += response.media_array.length;
+            addGalleryItems(response.media_array);
+            if (!hasNextPage()) {
+                loadingText.innerHTML = "No more content to load";
+            }
+            
+        })
+        .catch(() => {
+            polling = false;
+            console.error("err");
+        });
     }
 }
 
-function getDistToBottom () {
+function getDistToBottom() {
     let scrollPosition = window.pageYOffset;
     let windowSize = window.innerHeight;
     let bodyHeight = document.body.offsetHeight;
     return Math.max(bodyHeight - (scrollPosition + windowSize), 0);  
 }
 
+function hasNextPage() {
+    let nextPageCount = getNextPageCount();
+    return nextPageCount > pageCount;
+}
+
+function getNextPageCount() {
+    let nextPageCount = mediaCount / pageSize;
+    return nextPageCount;
+}
+
 function getParams() {
-    let nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
-    let baseUrl = nextUrl.split("?")[0];
-    let stringParams = nextUrl.split("?").pop().split("&");
-    let accessToken = stringParams[0].split("=").pop();
-    let count = stringParams[1].split("=").pop(); 
-    let maxTagId = stringParams[2].split("=").pop(); 
-    return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&count=" + count + "&max_tag_id=" + maxTagId;
+    let nextPageCount = getNextPageCount();
+    return "?page_count=" + nextPageCount;
 }
 
 function updateNextUrl(nextUrl) {
