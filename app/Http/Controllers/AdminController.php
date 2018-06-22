@@ -22,7 +22,7 @@ class AdminController extends Controller
 
     public function index()
     {
-        $tag = "test";
+        $tag = "hhn8";
         $page_size = 20;
         $media_array = $this->getMediaArrayFromDatabase($page_size);
         return view('admin', ["tag" => $tag, "media_array" => $media_array]);
@@ -38,7 +38,7 @@ class AdminController extends Controller
 
     public function refresh(Request $request)
     {
-        $tag = "test";
+        $tag = "hhn8";
         $media_data = Instagram::getAllMediaData($tag);
         $this->updateDatabase($media_data->media_array);
         return response()->json();
