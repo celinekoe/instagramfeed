@@ -19,10 +19,9 @@ class GalleryController extends Controller
      */
     public function index()
     {
-        $media_data = Instagram::getMediaData();
-        $rejected_media_array = $this->getRejectedMediaArray();
-        $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
-        return view('gallery', ["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+        $page_size = 20;
+        $media_array = $this->getMediaArrayFromDatabase($page_size);
+        return view('gallery', ["media_array" => $media_array, "next_url" => ""]);
     }
 
     // public function index()
@@ -33,53 +32,47 @@ class GalleryController extends Controller
     //     return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
     // }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // public function more(Request $request)
+    // {
+    //     $url = $this->getUrl($request);
+    //     $media_data = Instagram::getMoreMediaData($url);
+    //     $rejected_media_array = $this->getRejectedMediaArray();
+    //     $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
+    //     return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+    // }
+
     public function more(Request $request)
     {
-        $url = $this->getUrl($request);
-        $media_data = Instagram::getMoreMediaData($url);
-        $rejected_media_array = $this->getRejectedMediaArray();
-        $filtered_media_array = $this->getFilteredMediaArray($media_data->media_array, $rejected_media_array);
-        return response()->json(["media_array" => $filtered_media_array, "next_url" => $media_data->next_url]);
+        $page_count = $request->page_count;
+        $page_size = 20;
+        $media_array = $this->getMoreMediaArrayFromDatabase($page_count, $page_size);
+        return response()->json(["media_array" => $media_array, "next_url" => ""]);
     }
 
-    public function getUrl($request) 
+    private static function getMediaArrayFromDatabase($page_size)
     {
-        return $request->base_url . 
-            "?access_token=" . $request->access_token .
-            "&count=" . $request->count .
-            "&max_tag_id=" . $request->max_tag_id; 
+        $database_media_array = DB::table("gallery_items")
+            ->where('status', '!=' , "reject")
+            ->orWhereNull('status')
+            ->orderBy("created_at")
+            ->take($page_size)
+            ->get()
+            ->toArray();
+        return $database_media_array;
     }
 
-    private function getRejectedMediaArray()
+    private static function getMoreMediaArrayFromDatabase($page_count, $page_size)
     {
-        $rejected_media_array = DB::table('gallery_items')
-            ->where('status', "reject")
-            ->get();
-        return $rejected_media_array->toArray();
+        $database_media_array = DB::table("gallery_items")
+            ->where('status', '!=' , "reject")
+            ->orWhereNull('status')
+            ->orderBy("created_at")
+            ->skip($page_count * $page_size)
+            ->take($page_size)
+            ->get()
+            ->toArray();
+        return $database_media_array;
     }
 
-    private function getFilteredMediaArray($media_array, $rejected_media_array)
-    {
-        $filtered_media_array = [];
-        foreach ($media_array as $media) {
-            $found = false;
-            foreach ($rejected_media_array as $rejected_media) {
-                if ($media->url === $rejected_media->url) {
-                    $found = true;
-                    break;
-                }
-            }
-            if (!$found) {
-                array_push($filtered_media_array, $media);
-            }
-        }
-        return $filtered_media_array;
-    }
 
 }

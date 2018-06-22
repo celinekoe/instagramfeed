@@ -152,10 +152,11 @@ function onScroll() {
             pageCount++;
             mediaCount += response.media_array.length;
             addGalleryItems(response.media_array);
-            if (!hasNextPage()) {
-                loadingText.innerHTML = "No more content to load";
+            if (hasNextPage()) {
+                loadingText.innerHTML = "Loading...";
+            } else {
+                loadingText.innerHTML = "No more content to load.";
             }
-            
         })
         .catch(() => {
             polling = false;
@@ -184,11 +185,6 @@ function getNextPageCount() {
 function getParams() {
     let nextPageCount = getNextPageCount();
     return "?page_count=" + nextPageCount;
-}
-
-function updateNextUrl(nextUrl) {
-    let loading = document.querySelector(".loading");
-    loading.setAttribute("data-next-url", nextUrl);
 }
 
 let gallery = document.querySelector(".gallery");

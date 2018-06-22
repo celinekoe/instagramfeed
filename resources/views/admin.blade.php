@@ -30,7 +30,7 @@
         @endforeach
     </div>
     <div class="loading">
-        <p>Loading...</p>
+        <p>No more content to load.</p>
     </div>
     <div class="modal fade" id="acceptModal" tabindex="-1" role="dialog" aria-labelledby="acceptModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">

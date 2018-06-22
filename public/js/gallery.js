@@ -80,34 +80,39 @@ var appUrl = "http://127.0.0.1:8000";
 // let appUrl = "http://192.168.1.43";
 // let appUrl = "/server/public";
 
+var _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+
 /*
  * Scroll to load
  */
 
 document.addEventListener('scroll', onScroll);
-
 var polling = false;
-var _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+var pageCount = 0;
+var pageSize = 20;
+var mediaCount = (pageCount + 1) * 20;
+
+var loadingText = document.querySelector(".loading").querySelector("p");
 
 function onScroll() {
     var distToBottom = getDistToBottom();
-    if (!polling && distToBottom < 400) {
-        var nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
-        if (nextUrl !== "") {
-            polling = true;
-            var params = getParams();
-            get(appUrl + "/gallery/more", params).then(function (response) {
-                polling = false;
-                updateNextUrl(response.next_url);
-                addGalleryItems(response.media_array);
-            }).catch(function () {
-                polling = false;
-                console.error("err");
-            });
-        } else {
-            var loadingText = document.querySelector(".loading").querySelector("p");
-            loadingText.innerHTML = "No more content to load";
-        }
+    if (distToBottom < 400 && !polling && hasNextPage()) {
+        polling = true;
+        var params = getParams();
+        get(appUrl + "/gallery/more", params).then(function (response) {
+            polling = false;
+            pageCount++;
+            mediaCount += response.media_array.length;
+            addGalleryItems(response.media_array);
+            if (hasNextPage()) {
+                loadingText.innerHTML = "Loading...";
+            } else {
+                loadingText.innerHTML = "No more content to load.";
+            }
+        }).catch(function () {
+            polling = false;
+            console.error("err");
+        });
     }
 }
 
@@ -118,19 +123,19 @@ function getDistToBottom() {
     return Math.max(bodyHeight - (scrollPosition + windowSize), 0);
 }
 
-function getParams() {
-    var nextUrl = document.querySelector(".loading").getAttribute("data-next-url");
-    var baseUrl = nextUrl.split("?")[0];
-    var stringParams = nextUrl.split("?").pop().split("&");
-    var accessToken = stringParams[0].split("=").pop();
-    var count = stringParams[1].split("=").pop();
-    var maxTagId = stringParams[2].split("=").pop();
-    return "?base_url=" + baseUrl + "&access_token=" + accessToken + "&count=" + count + "&max_tag_id=" + maxTagId;
+function hasNextPage() {
+    var nextPageCount = getNextPageCount();
+    return nextPageCount > pageCount;
 }
 
-function updateNextUrl(nextUrl) {
-    var loading = document.querySelector(".loading");
-    loading.setAttribute("data-next-url", nextUrl);
+function getNextPageCount() {
+    var nextPageCount = mediaCount / pageSize;
+    return nextPageCount;
+}
+
+function getParams() {
+    var nextPageCount = getNextPageCount();
+    return "?page_count=" + nextPageCount;
 }
 
 var gallery = document.querySelector(".gallery");

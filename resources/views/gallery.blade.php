@@ -25,12 +25,8 @@
             </div> 
         @endforeach
     </div>
-    <div class="loading" data-next-url="{{ $next_url }}">
-        @if ($next_url)
-            <p>Loading...</p>
-        @else
-            <p>No more content to load</p>
-        @endif
+    <div class="loading">
+        <p>No more content to load.</p>
     </div>
 </div>
 @endsection

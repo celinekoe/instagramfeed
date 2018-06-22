@@ -17,6 +17,7 @@ class CreateGalleryItemsTable extends Migration
             $table->increments('id');
             $table->string('url');
             $table->string('type');
+            $table->string('link');
             $table->string('status');
             $table->string('uploaded_time');
             $table->timestamps();
