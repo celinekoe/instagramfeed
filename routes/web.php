@@ -63,6 +63,7 @@ Route::get('/', 'GalleryController@index');
 
 Route::get('/admin', 'AdminController@index')->name('admin');
 Route::get('/admin/more', 'AdminController@more');
+Route::get('/admin/refresh', 'AdminController@refresh');
 Route::post('/admin', 'AdminController@update');
 
 Route::get('/gallery', 'GalleryController@index')->name('gallery');

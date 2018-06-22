@@ -41,6 +41,7 @@ class AdminController extends Controller
     {
         $media_data = Instagram::getAllMediaData();
         $this->updateDatabase($media_data->media_array);
+        return response()->json();
     }
 
     public function getUrl($request) 

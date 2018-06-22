@@ -1,17 +1,45 @@
-let appUrl = "http://192.168.1.43/";
+let appUrl = "http://127.0.0.1:8000";
+// let appUrl = "http://192.168.1.43/";
 // let appUrl = "/server/public";
+
+let _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 
 /*
  * Alert
  */
 
-let alert = document.querySelector(".alert");
+let alertPopup = document.querySelector(".alert");
 
 let alertCloseButton = document.querySelector(".alert-close-button");
 alertCloseButton.addEventListener("click", closeAlert);
 
 function closeAlert() {
-    alert.classList.remove("show");
+    alertPopup.classList.remove("show");
+}
+
+/*
+ * Refresh
+ */
+
+let refreshButton = document.querySelector("#refresh-button");
+addRefreshOnClick(refreshButton);
+function addRefreshOnClick(refreshButton) {
+    refreshButton.addEventListener("click", refresh);
+}
+
+function refresh($event) {
+    let refreshButton = $event.currentTarget;
+    refreshButton.disabled = true;
+    refreshButton.innerHTML = "Loading...";
+    get(appUrl + "/admin/refresh", "")
+    .then(response => {
+        refreshButton.disabled = false;
+        refreshButton.innerHTML = "Refresh";
+        location.reload();
+    })
+    .catch(() => {
+        console.error("err");
+    });
 }
 
 /*
@@ -26,8 +54,6 @@ for(i = 0; i < modalConfirmButtons.length; i++) {
 function addConfirmOnClick(confirmButton) {
     confirmButton.addEventListener("click", confirm);
 }
-
-let _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 
 function confirm($event) {
     let confirmButton = $event.currentTarget;
