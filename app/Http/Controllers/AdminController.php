@@ -59,7 +59,7 @@ class AdminController extends Controller
     private static function getMediaArrayFromDatabase($page_size)
     {
         $database_media_array = DB::table("gallery_items")
-            ->orderBy("created_at")
+            ->orderBy("uploaded_time", "desc")
             ->take($page_size)
             ->get()
             ->toArray();
@@ -69,7 +69,7 @@ class AdminController extends Controller
     private static function getMoreMediaArrayFromDatabase($page_count, $page_size)
     {
         $database_media_array = DB::table("gallery_items")
-            ->orderBy("created_at")
+            ->orderBy("uploaded_time", "desc")
             ->skip($page_count * $page_size)
             ->take($page_size)
             ->get()
@@ -80,14 +80,27 @@ class AdminController extends Controller
     private function updateDatabase($media_array)
     {
         $insert_media_array = $this->getInsertMediaArray($media_array);
-        DB::table('gallery_items')->insert(
-            $insert_media_array
-        );
+        DB::table('gallery_items')
+            ->insert(
+                $insert_media_array
+            );
+
+        $filtered_media_array = $this->getOldMediaArray($media_array);
+        $filtered_ids = array_column($filtered_media_array, "link");
+        DB::table("gallery_items")
+            ->whereIn("link", $filtered_ids)
+            ->delete();
+
+        $update_media_array = $this->getUpdateMediaArray($filtered_media_array);
+        DB::table('gallery_items')
+            ->insert(
+                $update_media_array
+            );
     }
 
     private function getInsertMediaArray($media_array)
     {
-        $filtered_media_array = $this->getFilteredMediaArray($media_array);  
+        $filtered_media_array = $this->getNewMediaArray($media_array);  
         $insert_media_array = [];     
         foreach ($filtered_media_array as $filtered_media)
         {
@@ -96,16 +109,16 @@ class AdminController extends Controller
         return $insert_media_array;
     }
 
-    private function getFilteredMediaArray($media_array) {
+    private function getNewMediaArray($media_array) {
         $urls = array_column($media_array, "url");
         $database_media_array = DB::table("gallery_items")
             ->whereIn("url", $urls)
             ->get()
             ->toArray();
-        return $this->filterMediaArray($media_array, $database_media_array);
+        return $this->filterNewMediaArray($media_array, $database_media_array);
     }
 
-    private function filterMediaArray($media_array, $filter_media_array)
+    private function filterNewMediaArray($media_array, $filter_media_array)
     {
         $filtered_media_array = [];
         foreach ($media_array as $media) {
@@ -130,6 +143,62 @@ class AdminController extends Controller
             'type' => $media->type,
             'link' => $media->link,
             'status' => "pending",
+            'uploaded_time' => $media->uploaded_time,
+            'created_at' => date("Y-m-d H:i:s"),
+            'updated_at' => date("Y-m-d H:i:s"),
+        ];
+    }
+
+    private function getUpdateMediaArray($filtered_media_array) 
+    {
+        $update_media_array = [];     
+        foreach ($filtered_media_array as $filtered_media)
+        {
+            $update_media_array[] = $this->getUpdateMedia($filtered_media);
+        }
+        return $update_media_array;
+    }
+
+    private function getOldMediaArray($media_array) {
+        $database_video_array = DB::table("gallery_items")
+            ->where("type", "video")
+            ->get()
+            ->toArray();
+        $video_links = array_column($database_video_array, "link");
+        $database_media_array = DB::table("gallery_items")
+            ->whereIn("link", $video_links)
+            ->get()
+            ->toArray();
+        return $this->filterOldMediaArray($media_array, $database_media_array);
+    }
+
+    private function filterOldMediaArray($media_array, $filter_media_array)
+    {
+        $filtered_media_array = [];
+        foreach ($media_array as $media) {
+            $found = false;
+            foreach ($filter_media_array as $filter_media) {
+                if ($media->link === $filter_media->link) {
+                    $found = true;
+                    $media->id = $filter_media->id;
+                    $media->status = $filter_media->status;
+                    break;
+                }
+            }
+            if ($found) {
+                array_push($filtered_media_array, $media);
+            }
+        }
+        return $filtered_media_array;
+    }
+
+    private function getUpdateMedia($media)
+    {
+        return [
+            'url' => $media->url,
+            'type' => $media->type,
+            'link' => $media->link,
+            'status' => $media->status,
             'uploaded_time' => $media->uploaded_time,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),

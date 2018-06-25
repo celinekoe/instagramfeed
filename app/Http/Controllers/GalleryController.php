@@ -44,7 +44,7 @@ class GalleryController extends Controller
         $database_media_array = DB::table("gallery_items")
             ->where('status', '!=' , "reject")
             ->orWhereNull('status')
-            ->orderBy("created_at")
+            ->orderBy("uploaded_time", "desc")
             ->take($page_size)
             ->get()
             ->toArray();
@@ -56,7 +56,7 @@ class GalleryController extends Controller
         $database_media_array = DB::table("gallery_items")
             ->where('status', '!=' , "reject")
             ->orWhereNull('status')
-            ->orderBy("created_at")
+            ->orderBy("uploaded_time", "desc")
             ->skip($page_count * $page_size)
             ->take($page_size)
             ->get()
