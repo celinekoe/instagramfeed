@@ -76,9 +76,9 @@ module.exports = __webpack_require__(40);
 /***/ 40:
 /***/ (function(module, exports) {
 
-var appUrl = "http://127.0.0.1:8000";
+// let appUrl = "http://127.0.0.1:8000";
 // let appUrl = "http://192.168.1.43/";
-// let appUrl = "/server/public";
+var appUrl = "/server/public";
 
 var _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 

@@ -17,19 +17,19 @@ class GalleryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $page_size = 20;
-        $media_array = $this->getMediaArrayFromDatabase($page_size);
-        return view('gallery', ["media_array" => $media_array]);
-    }
-
     // public function index()
     // {
     //     $page_size = 20;
     //     $media_array = $this->getMediaArrayFromDatabase($page_size);
-    //     return response()->json(["media_array" => $media_array]);
+    //     return view('gallery', ["media_array" => $media_array]);
     // }
+
+    public function index()
+    {
+        $page_size = 200;
+        $media_array = $this->getMediaArrayFromDatabase($page_size);
+        return response()->json(["media_array" => $media_array]);
+    }
 
     public function more(Request $request)
     {

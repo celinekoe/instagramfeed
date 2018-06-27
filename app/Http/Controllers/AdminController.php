@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\Instagram;
+use App\Traits\Database;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    use Instagram;
+    use Database;
 
     /**
      * Create a new controller instance.
@@ -38,9 +38,7 @@ class AdminController extends Controller
 
     public function refresh(Request $request)
     {
-        $tag = "hhn8";
-        $media_data = Instagram::getAllMediaData($tag);
-        $this->updateDatabase($media_data->media_array);
+        Database::updateDatabase();
         return response()->json();
     }
 

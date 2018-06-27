@@ -1,6 +1,6 @@
-let appUrl = "http://127.0.0.1:8000";
+// let appUrl = "http://127.0.0.1:8000";
 // let appUrl = "http://192.168.1.43/";
-// let appUrl = "/server/public";
+let appUrl = "/server/public";
 
 let _token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
 
