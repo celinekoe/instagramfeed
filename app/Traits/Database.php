@@ -15,12 +15,6 @@ trait Database {
         $media_data = Instagram::getAllMediaData($tag);
         $media_array = $media_data->media_array;
 
-        $insert_media_array = Database::getInsertMediaArray($media_array);
-        DB::table('gallery_items')
-            ->insert(
-                $insert_media_array
-            );
-
         $filtered_media_array = Database::getOldMediaArray($media_array);
         $filtered_ids = array_column($filtered_media_array, "link");
         DB::table("gallery_items")
@@ -31,6 +25,12 @@ trait Database {
         DB::table('gallery_items')
             ->insert(
                 $update_media_array
+            );
+
+        $insert_media_array = Database::getInsertMediaArray($media_array);
+        DB::table('gallery_items')
+            ->insert(
+                $insert_media_array
             );
     }
 
