@@ -86,13 +86,9 @@ trait Database {
     }
 
     private static function getOldMediaArray($media_array) {
-        $database_video_array = DB::table("gallery_items")
-            ->where("type", "video")
-            ->get()
-            ->toArray();
-        $video_links = array_column($database_video_array, "link");
+        $links = array_column($media_array, "link");
         $database_media_array = DB::table("gallery_items")
-            ->whereIn("link", $video_links)
+            ->whereIn("link", $links)
             ->get()
             ->toArray();
         return Database::filterOldMediaArray($media_array, $database_media_array);
