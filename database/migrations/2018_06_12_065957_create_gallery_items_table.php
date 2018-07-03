@@ -15,9 +15,11 @@ class CreateGalleryItemsTable extends Migration
     {
         Schema::create('gallery_items', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('post_id');
+            $table->integer('carousel_no');
             $table->string('url', 1000);
             $table->string('type');
-            $table->string('link');
+            $table->string('post_url');
             $table->string('status');
             $table->string('uploaded_time');
             $table->timestamps();

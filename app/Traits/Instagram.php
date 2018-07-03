@@ -62,13 +62,14 @@ trait Instagram {
     {
         $media_array = [];
         foreach ($data as $media) {
+            $post_id = $media->id;
             $link = $media->link;
             $uploaded_time = $media->created_time;
             if (isset($media->carousel_media)) {
-                $carousel_media_array = Instagram::getCarouselMediaArray($media->carousel_media, $link, $uploaded_time);
+                $carousel_media_array = Instagram::getCarouselMediaArray($media->carousel_media, $post_id, $link, $uploaded_time);
                 $media_array = array_merge($media_array, $carousel_media_array);
             } else {
-                $media_object = Instagram::getMediaObject($media, $link, $uploaded_time);
+                $media_object = Instagram::getMediaObject($media, $post_id, 1, $link, $uploaded_time);
                 array_push($media_array, $media_object);
             }
         }
@@ -80,29 +81,35 @@ trait Instagram {
      *
      * @return array
      */
-    private static function getCarouselMediaArray($carousel_media_array, $link, $uploaded_time)
+    private static function getCarouselMediaArray($carousel_media_array, $post_id, $link, $uploaded_time)
     {
         $new_carousel_media_array = [];
+        $count = 1;
         foreach ($carousel_media_array as $carousel_media) {
-            $media_object = Instagram::getMediaObject($carousel_media, $link, $uploaded_time);
+            $media_object = Instagram::getMediaObject($carousel_media, $post_id, $count, $link, $uploaded_time);
             array_push($new_carousel_media_array, $media_object);
+            $count++;
         }
         $new_carousel_media_array = array_reverse($new_carousel_media_array);
         return $new_carousel_media_array;
     }
 
-    private static function getMediaObject($media, $link, $uploaded_time)
+    private static function getMediaObject($media, $post_id, $carousel_no, $post_url, $uploaded_time)
     {
         $media_object = new \stdClass;
         if (isset($media->videos)) {
+            $media_object->post_id = $post_id;
+            $media_object->carousel_no = $carousel_no;
             $media_object->url = $media->videos->standard_resolution->url;
             $media_object->type = "video";
-            $media_object->link = $link;
+            $media_object->post_url = $post_url;
             $media_object->uploaded_time = $uploaded_time;
         } else if (isset($media->images)) {
+            $media_object->post_id = $post_id;
+            $media_object->carousel_no = $carousel_no;
             $media_object->url = $media->images->standard_resolution->url;
             $media_object->type = "image";
-            $media_object->link = $link;
+            $media_object->post_url = $post_url;
             $media_object->uploaded_time = $uploaded_time;
         }
         return $media_object;
