@@ -15,7 +15,7 @@ class CreateGalleryItemsTable extends Migration
     {
         Schema::create('gallery_items', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('url');
+            $table->string('url', 1000);
             $table->string('type');
             $table->string('link');
             $table->string('status');
