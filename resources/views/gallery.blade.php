@@ -8,7 +8,7 @@
     <div class="gallery">
         @foreach ($media_array as $media)
             <div class="gallery-item">
-                <a href="{{ $media->link }}" target="_blank">
+                <a href="{{ $media->post_url }}" target="_blank">
                     @if ($media->type === "video")
                         <div class="video-container">
                             <video>

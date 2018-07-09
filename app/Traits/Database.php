@@ -17,11 +17,11 @@ trait Database {
 
         $filtered_media_array = Database::getOldMediaArray($media_array);
         $filtered_ids = array_column($filtered_media_array, "post_id");
-        DB::table("gallery_items")
-            ->whereIn("post_id", $filtered_ids)
-            ->delete();
-
         $update_media_array = Database::getUpdateMediaArray($filtered_media_array);
+
+        DB::table("gallery_items")
+            ->delete();
+        
         DB::table('gallery_items')
             ->insert(
                 $update_media_array
