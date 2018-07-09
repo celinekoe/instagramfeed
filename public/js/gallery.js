@@ -141,7 +141,6 @@ function getParams() {
 var gallery = document.querySelector(".gallery");
 
 function addGalleryItems(mediaArray) {
-    console.log(mediaArray.length);
     for (var i = 0; i < mediaArray.length; i++) {
         addGalleryItem(mediaArray[i]);
     }
@@ -161,7 +160,7 @@ function addGalleryItem(media) {
 
 function addLink(galleryItem, media) {
     var link = document.createElement("a");
-    link.setAttribute("href", media.link);
+    link.setAttribute("href", media.post_url);
     link.setAttribute("target", "_blank");
     galleryItem.appendChild(link);
     return link;
